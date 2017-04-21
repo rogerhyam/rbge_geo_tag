@@ -2,13 +2,20 @@
 jQuery( document ).ready(function() {
     
     // only run the init if the map div has been loaded
-    if(jQuery("#rbge-geo-tag-map").length > 0)  rbge_geo_tag_admin_init();    
-    if(jQuery("#rbge-geo-tag-display-map").length > 0)  rbge_geo_tag_display_init();
+    if(jQuery("#rbge-geo-tag-map").length > 0)  rbge_geo_tag_admin_init();
+    if(jQuery(".rbge-geo-tag-display-map").length > 0)  rbge_geo_tag_display_init();
 
 });
 
-
+/* We may have multiple maps on a page from within a single post or separate posts */
 function rbge_geo_tag_display_init(){
+    jQuery(".rbge-geo-tag-display-map").each(function( index ) {
+        console.log(jQuery( this ));
+        rbge_geo_tag_display_map(jQuery( this ).attr('id'));
+    });
+}
+
+function rbge_geo_tag_display_map(map_id){
     
     var all_markers = [];
     
@@ -17,7 +24,7 @@ function rbge_geo_tag_display_init(){
     var zoomLevel = 6;
     
     // see if we can get centre and zoom from map element.
-    var map_div = jQuery("#rbge-geo-tag-display-map");
+    var map_div = jQuery("#" + map_id);
     console.log(map_div);
     
     if(map_div.data('lat') && map_div.data('lon')){
@@ -29,7 +36,7 @@ function rbge_geo_tag_display_init(){
     }
 
     // actually add the map to the display
-    var map = new google.maps.Map(document.getElementById('rbge-geo-tag-display-map'), {
+    var map = new google.maps.Map(document.getElementById(map_id), {
         zoom: zoomLevel,
         center: centerOfMap,
         mapTypeId: 'hybrid'    
@@ -48,7 +55,7 @@ function rbge_geo_tag_display_init(){
     }
     
     // add markers for posts with the tags.
-    jQuery(".rbge-geo-tag-display-map-marker").each(function( index ) {
+    jQuery("." + map_id + "-marker").each(function( index ) {
         
         var plat = jQuery( this ).data('lat');
         var plng = jQuery( this ).data('lon');
@@ -81,9 +88,6 @@ function rbge_geo_tag_display_init(){
         }
         map.fitBounds(bounds);
     }
-    
-
-    
     
     
 }

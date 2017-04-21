@@ -2,6 +2,7 @@
 
 class RbgeGeoTagTag{
     
+    private $occurrence_count = 0;
     
     public function render($params){
         
@@ -21,8 +22,10 @@ class RbgeGeoTagTag{
         else $height = 300;
         $height .= 'px';
         
-        $out = "<div id=\"rbge-geo-tag-display-map\" data-lat=\"$lat\" data-lon=\"$lng\" data-zoom=\"$zoom\" style=\"width: 100%; height: $height\">gg</div>";
+        // each instance of the tag has its own id
+        $map_id = "rbge-geo-tag-display-map-" . $post_id . '-' . $this->occurrence_count;
         
+        $out = "<div id=\"$map_id\" class=\"rbge-geo-tag-display-map\" data-lat=\"$lat\" data-lon=\"$lng\" data-zoom=\"$zoom\" style=\"width: 100%; height: $height\">gg</div>";
         
         // have they passed a list of tag slugs?
         if(isset($params['tags'])){
@@ -45,6 +48,7 @@ class RbgeGeoTagTag{
         $postslist = get_posts( $args );
         
         $out .= '<ul style="display: none;">';
+        $marker_class = $map_id . '-marker';
         foreach($postslist as $p){
             
             $pid = $p->ID;
@@ -52,10 +56,13 @@ class RbgeGeoTagTag{
             $plat = get_post_meta($pid, 'geo_latitude', true);
             $ptitle = $p->post_title;
             
-            $out .= "<li class=\"rbge-geo-tag-display-map-marker\" data-lat=\"$plat\" data-lon=\"$plng\" data-pid=\"$pid\" >$ptitle</li>";
+            $out .= "<li class=\"$marker_class\" data-lat=\"$plat\" data-lon=\"$plng\" data-pid=\"$pid\" >$ptitle</li>";
             
         }
         $out .= '</ul>';
+        
+        // up the occurrence count for naming of map instances
+        $this->occurrence_count++;
         
         return $out ;//.'<pre>' . print_r($postslist, true) . '</pre>';
         
