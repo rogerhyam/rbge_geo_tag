@@ -23,8 +23,10 @@ if(is_admin()){
 
         add_meta_box('geotag', 'RBGE Geo Tag', array($admin, 'render_meta_box'), 'post', 'normal', 'high');
         add_action('save_post', array($admin, 'save_post'));
+        add_action('in_admin_header', array($admin, 'help'));
 
     });
+    
     
 }else{
     
@@ -42,7 +44,6 @@ if(is_admin()){
     add_shortcode( 'rbge_geo_tag', array($tag, 'render') );
     
 }
-
 
 
 ?>

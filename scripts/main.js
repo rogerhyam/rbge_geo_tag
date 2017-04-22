@@ -188,3 +188,10 @@ function rbge_geo_tag_admin_init(){
         
     });
 }
+
+function rbge_geo_tag_fire_help(){
+    window.scrollTo(0, 0);
+    jQuery('#contextual-help-link').click();
+    jQuery('#tab-link-rbge_geo_tag_help a').click();
+    return false;
+}
