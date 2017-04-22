@@ -45,6 +45,12 @@ if(is_admin()){
     add_shortcode( 'rbge_map_it', array($tag, 'render') ); // legacy support for the old tag    
     add_shortcode( 'rbge_map_link', array($tag, 'link') ); // moved from the simple plugin
     
+    require_once plugin_dir_path( __FILE__ ) . 'classes/RbgeGeoTagMachine.php';
+    $machine = new RbgeGeoTagMachine();
+    add_action('wp_head', array($machine, 'page_header'));
+    add_action('rss2_item', array($machine, 'rss'));
+    
+    
 }
 
 

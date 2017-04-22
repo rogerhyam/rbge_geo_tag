@@ -69,7 +69,7 @@ class RbgeGeoTagTag{
         
     }
     
-    function link( $atts ){
+    public function link( $atts ){
 
     	$post_id = get_the_ID();
     	$longitude = get_post_meta($post_id, 'geo_longitude', true);
