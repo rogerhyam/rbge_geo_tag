@@ -29,6 +29,7 @@ function rbge_geo_tag_display_map(map_id){
     
     if(map_div.data('lat') && map_div.data('lon')){
         centerOfMap = new google.maps.LatLng(map_div.data('lat'), map_div.data('lon'));
+        zoomLevel = 16; // default to close if zoom not set
     }
     
     if(map_div.data('zoom')){
