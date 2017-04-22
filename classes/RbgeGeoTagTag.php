@@ -25,7 +25,7 @@ class RbgeGeoTagTag{
         // each instance of the tag has its own id
         $map_id = "rbge-geo-tag-display-map-" . $post_id . '-' . $this->occurrence_count;
         
-        $out = "<div id=\"$map_id\" class=\"rbge-geo-tag-display-map\" data-lat=\"$lat\" data-lon=\"$lng\" data-zoom=\"$zoom\" style=\"width: 100%; height: $height\">gg</div>";
+        $out = "<div id=\"$map_id\" class=\"rbge-geo-tag-display-map\" data-lat=\"$lat\" data-lon=\"$lng\" data-zoom=\"$zoom\" style=\"width: 100%; height: $height\"></div>";
         
         // have they passed a list of tag slugs?
         if(isset($params['tags'])){
