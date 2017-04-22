@@ -51,32 +51,6 @@ class RbgeGeoTagAdmin{
 
     }
     
-    function link( $atts ){
-
-    	$post_id = get_the_ID();
-    	$longitude = get_post_meta($post_id, 'geo_longitude', true);
-    	$latitude = get_post_meta($post_id, 'geo_latitude', true);
-
-    	if(!empty($atts['zoom'])){
-    	    $zoom = $atts['zoom'];
-    	}else{
-    	    $zoom = 16;
-    	}
-
-    	if(!empty($atts['text'])){
-    	    $txt = $atts['text'];
-    	}else{
-    	    $txt = 'Show map.';
-    	}
-
-        if(empty($longitude) || empty($latitude)){
-            return "<strong>This story hasn't been geocoded.</strong>";
-        }else{
-            return '<a href="https://maps.google.com/maps?z='.$zoom.'&q=loc:'.$latitude.'+'.$longitude.'">'.$txt.'</a>';
-            // directions something like: http://maps.google.com/maps?saddr=%f,%f&daddr=%f,%f
-        }
-
-    }
 
     public function help(){
         
