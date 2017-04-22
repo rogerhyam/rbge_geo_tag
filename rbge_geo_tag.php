@@ -42,6 +42,8 @@ if(is_admin()){
     require_once plugin_dir_path( __FILE__ ) . 'classes/RbgeGeoTagTag.php';
     $tag = new RbgeGeoTagTag();
     add_shortcode( 'rbge_geo_tag', array($tag, 'render') );
+    add_shortcode( 'rbge_map_it', array($tag, 'render') ); // legacy support for the old tag    
+    add_shortcode( 'rbge_map_link', array($tag, 'link') ); // moved from the simple plugin
     
 }
 

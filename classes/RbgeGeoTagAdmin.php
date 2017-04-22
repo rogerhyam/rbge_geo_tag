@@ -50,6 +50,33 @@ class RbgeGeoTagAdmin{
         
 
     }
+    
+    function link( $atts ){
+
+    	$post_id = get_the_ID();
+    	$longitude = get_post_meta($post_id, 'geo_longitude', true);
+    	$latitude = get_post_meta($post_id, 'geo_latitude', true);
+
+    	if(!empty($atts['zoom'])){
+    	    $zoom = $atts['zoom'];
+    	}else{
+    	    $zoom = 16;
+    	}
+
+    	if(!empty($atts['text'])){
+    	    $txt = $atts['text'];
+    	}else{
+    	    $txt = 'Show map.';
+    	}
+
+        if(empty($longitude) || empty($latitude)){
+            return "<strong>This story hasn't been geocoded.</strong>";
+        }else{
+            return '<a href="https://maps.google.com/maps?z='.$zoom.'&q=loc:'.$latitude.'+'.$longitude.'">'.$txt.'</a>';
+            // directions something like: http://maps.google.com/maps?saddr=%f,%f&daddr=%f,%f
+        }
+
+    }
 
     public function help(){
         
@@ -76,6 +103,10 @@ class RbgeGeoTagAdmin{
         <p>
             The map will always be full page width but you can specify the height in pixels like this.
             <pre>[rbge_geo_tag height="400" tags="native-tree-trail" ]</pre>
+        </p>
+        <p>
+            It is also possible to just add a link to the location the post is geotagged to.
+            <pre>[rbge_map_link text="Open location in Google Maps"]</pre>
         </p>
         
         ';
