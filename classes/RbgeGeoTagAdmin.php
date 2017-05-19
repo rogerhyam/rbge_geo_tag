@@ -42,12 +42,26 @@ class RbgeGeoTagAdmin{
     
     public function save_post($post_id){
         
+        global $wpdb;
+        
         // quick edit will overwrite the metadata values so check for form flag first
         if( !isset($_POST['rbge_geo_tag_submit_flag'])) return;
+        if(!is_numeric(trim($_POST['geo_latitude']))) return;
+        if(!is_numeric(trim($_POST['geo_longitude']))) return;
+        
+        
+        
         update_post_meta($post_id, 'geo_latitude', trim($_POST['geo_latitude']));
         update_post_meta($post_id, 'geo_longitude', trim($_POST['geo_longitude']));
         update_post_meta($post_id, 'geo_map_zoom', trim($_POST['geo_map_zoom']));
         
+        // add it into the spatial index
+        $lat = trim($_POST['geo_latitude']);
+        $lon = trim($_POST['geo_longitude']);
+        $point = "POINT($lat $lon)";
+        
+        $sql = "INSERT INTO rbge_geo_tag_points (post_id, geopoint) VALUES ($post_id, ST_GeomFromText('$point')) ON DUPLICATE KEY UPDATE geopoint = ST_GeomFromText('$point');";
+        $wpdb->query($sql);
 
     }
     

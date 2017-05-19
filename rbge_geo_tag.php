@@ -7,6 +7,10 @@ Author: Roger Hyam
 License: GPL2
 */
 
+require_once plugin_dir_path( __FILE__ ) . 'classes/RbgeGeoTagActivation.php';
+register_activation_hook( __FILE__, array( 'RbgeGeoTagActivation', 'activate' ) );
+register_deactivation_hook( __FILE__, array( 'RbgeGeoTagActivation', 'deactivate' ) );
+
 if(is_admin()){
 
     //things on the back end
@@ -26,7 +30,6 @@ if(is_admin()){
         add_action('in_admin_header', array($admin, 'help'));
 
     });
-    
     
 }else{
     
