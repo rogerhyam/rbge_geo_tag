@@ -56,5 +56,18 @@ if(is_admin()){
     
 }
 
+// REST API call
+add_action( 'rest_api_init', function () {
+  require_once plugin_dir_path( __FILE__ ) . 'classes/RbgeGeoTagRest.php';
+  $rest = new RbgeGeoTagRest();
+  $rest->register_routes();
+});
+
+// general init stuff
+add_action( 'init', function(){
+    add_image_size( 'widescreen', 1024, 576, true);
+});
+
+
 
 ?>

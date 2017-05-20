@@ -5,6 +5,7 @@ class RbgeGeoTagActivation{
 public static function activate(){
     
     global $wpdb;
+    global $wp_rewrite;
   
     $sql = "CREATE TABLE rbge_geo_tag_points (
         post_id mediumint(9) NOT NULL,
@@ -38,6 +39,7 @@ public static function activate(){
     	
     $wpdb->query($sql);
     
+    
 }
 
 public static function deactivate(){
@@ -47,7 +49,7 @@ public static function deactivate(){
 }
 
 
-}
+} // end class
 
 /*
     how to get the post by distance - saved for later

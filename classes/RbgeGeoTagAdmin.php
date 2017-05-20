@@ -49,8 +49,6 @@ class RbgeGeoTagAdmin{
         if(!is_numeric(trim($_POST['geo_latitude']))) return;
         if(!is_numeric(trim($_POST['geo_longitude']))) return;
         
-        
-        
         update_post_meta($post_id, 'geo_latitude', trim($_POST['geo_latitude']));
         update_post_meta($post_id, 'geo_longitude', trim($_POST['geo_longitude']));
         update_post_meta($post_id, 'geo_map_zoom', trim($_POST['geo_map_zoom']));
