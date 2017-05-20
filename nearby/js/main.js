@@ -4,8 +4,7 @@ var rbgeNearby = {};
 rbgeNearby.location_current = false;
 rbgeNearby.location_error = false;
 rbgeNearby.location_inaccurate = false;
-rbgeNearby.location_ok_accuracy = 160; // this will do to stop the retrieving location
-rbgeNearby.location_min_accuracy = 160; // don't consider anything less accurate than this.
+rbgeNearby.location_ok_accuracy = 20; // this will do to stop the retrieving location
 rbgeNearby.location_watcher = false; // the watcher reporting the location (when running)
 rbgeNearby.location_timer = false; // a timer that will stop the location_watcher after a set period
 rbgeNearby.post_data = false; // holds the last lot of data downloaded
@@ -20,7 +19,7 @@ $(document).on("pagecreate","#index-page",function(){
    $('#nearby-refresh-button').on('click', rbgeNearby.refresh);
 });
 
-$(document).on("pagebeforeshow","#index-page",function(){
+$(document).on("pageshow","#index-page",function(){
     
     // if we have no items in the list try and get some
     if($('.nearby-post-li').length == 0 || ((new Date()).getTime() - 600000) > rbgeNearby.last_refresh){
@@ -28,6 +27,8 @@ $(document).on("pagebeforeshow","#index-page",function(){
     }
     
 });
+
+
 
 $(document).on("pagecreate","#about-page",function(){ 
   
@@ -127,12 +128,7 @@ rbgeNearby.refresh = function(){
                     ){
                         return;
                     }
-
-                     // check accuracy is in sufficient - if we are greater than X keep watching
-                     if(position.coords.accuracy > rbgeNearby.location_min_accuracy){
-                        return;
-                     }
-
+                    
                      // got to here so it is useable.
                      rbgeNearby.location_error = false;
                      rbgeNearby.location_current = position.coords;
@@ -168,25 +164,15 @@ rbgeNearby.refresh = function(){
 
     );
     
-    // we run the location for maximum of 30 secs
+    // we run the location for maximum of 20 secs
     rbgeNearby.location_timer = setTimeout(function(){
 
                 navigator.geolocation.clearWatch(rbgeNearby.location_watcher);
 
                 $.mobile.loading( "hide" ); // hide the loading if it showing
+                rbgeNearby.loadData();
 
-                // if we never got precise enough tell them.
-                if(rbgeNearby.location_inaccurate){
-                    // fixme - these boxes don't exist..
-                    $('#map-vague-location-popup span.location-accuracy').html(position.coords.accuracy);
-                    $('#map-vague-location-popup').popup('open');
-                }else if(rbgeNearby.location_error){
-                    $('#map-no-location-popup').popup('open');
-                }else if(rbgeNearby.location_current){
-                    rbgeNearby.loadData();
-                }
-
-    }, 30 * 1000);
+    }, 20 * 1000);
     
     // while we are calling the location we can update the categories
     rbgeNearby.loadCategories();
@@ -300,6 +286,10 @@ rbgeNearby.selectCategory = function(slug){
 */
 rbgeNearby.loadData = function(){
     
+    if(rbgeNearby.location_inaccurate){
+        alert('Warning: Location data is inaccurate (only to about '+ (Math.round(rbgeNearby.location_current.accuracy)).toLocaleString() +' metres)');
+    }
+    
     $.mobile.loading( "show", {
         text: 'Loading data',
         textVisible: true,
@@ -361,7 +351,7 @@ rbgeNearby.updateDisplay = function(){
         if(d > 0){
             console.log(rbgeNearby.location_current);
             console.log(post);
-            bearing = rbgeNearby.getBearing(post.latitude, post.longitude, rbgeNearby.location_current.latitude, rbgeNearby.location_current.longitude );
+            bearing = rbgeNearby.getBearing(rbgeNearby.location_current.latitude, rbgeNearby.location_current.longitude, post.latitude, post.longitude );
             console.log(bearing);
             if (bearing < 45) bearing = 'North'; 
             else if(bearing < 135) bearing = 'East';
@@ -372,7 +362,9 @@ rbgeNearby.updateDisplay = function(){
             
         }
         
-        var p = $('<p>'+ d.toLocaleString() + ' ' + unit + ' ' + bearing +'</p>');
+        var accuracy = Math.round(rbgeNearby.location_current.accuracy);
+        
+        var p = $('<p>'+ d.toLocaleString() + ' ' + unit + ' ' + bearing +' (&#177; '+ accuracy.toLocaleString() + ' metres)</p>');
         a.append(p);
         
         post_list.listview('refresh');
