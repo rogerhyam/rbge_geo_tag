@@ -114,6 +114,10 @@ $(document).on("pagebeforeshow","#post-page",function(){
     
 });
 
+$(document).on("pagehide","#post-page",function(){
+    rbgeNearby.stopAudio();
+});
+
 /*
  * Google Maps documentation: http://code.google.com/apis/maps/documentation/javascript/basics.html
  * Geolocation documentation: http://dev.w3.org/geo/api/spec-source.html
@@ -176,13 +180,45 @@ $(document).on("pageshow","#map-page",function(){
     var bounds = new google.maps.LatLngBounds();
     bounds.extend(rbgeNearby.map_post_marker.getPosition());
     bounds.extend(rbgeNearby.map_person_marker.getPosition());
+    
+    /*
+        in order to set bounds so that the post is in the centre but
+        the person location is also visible we need to calculate a "mirror" point
+        on the other side of the post point
+    */
+    
+    var post_lat = parseFloat(rbgeNearby.post_current.latitude);
+    var person_lat = parseFloat(rbgeNearby.location_current.latitude);
+    if(post_lat > person_lat){
+        var mlat = post_lat + Math.abs(post_lat - person_lat);
+    }else{
+        var mlat = post_lat - Math.abs(post_lat - person_lat);
+    }
+
+    var post_lon = parseFloat(rbgeNearby.post_current.longitude);
+    var person_lon = parseFloat(rbgeNearby.location_current.longitude);
+    if(post_lon > person_lon){
+        var mlon = post_lon + Math.abs(post_lon - person_lon);
+    }else{
+        var mlon = post_lon - Math.abs(post_lon - person_lon);
+    }
+
+    bounds.extend(new google.maps.LatLng(mlat, mlon));
+    
     rbgeNearby.map.fitBounds(bounds);
     
     // just to make sure the map renders right
     google.maps.event.trigger(rbgeNearby.map, 'resize');
     
+    // start tracking if we are not
+    rbgeNearby.toggleTracking();
     
 });
+
+$(document).on("pagehide","#map-page",function(){
+    rbgeNearby.stopTracking();
+});
+
 
 rbgeNearby.refresh = function(){
     
@@ -558,8 +594,7 @@ rbgeNearby.toRad = function(deg) {
 rbgeNearby.toggleAudio = function(){
     
     console.log('toggle');
-    console.log($('#nearby-audio').data('playing'));
-    
+        
     if($('#nearby-audio').data('playing')){
         rbgeNearby.stopAudio();
     }else{
