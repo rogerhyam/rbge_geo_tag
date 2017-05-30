@@ -4,13 +4,38 @@ var rbgeNearby = {};
 rbgeNearby.location_current = false;
 rbgeNearby.location_error = false;
 rbgeNearby.location_inaccurate = false;
-rbgeNearby.location_ok_accuracy = 20; // this will do to stop the retrieving location
+rbgeNearby.location_ok_accuracy = 200; // this will do to stop the retrieving location
 rbgeNearby.location_watcher = false; // the watcher reporting the location (when running)
 rbgeNearby.location_timer = false; // a timer that will stop the location_watcher after a set period
 rbgeNearby.post_data = false; // holds the last lot of data downloaded
 rbgeNearby.post_current = false; // holds the currently selected post.
 rbgeNearby.cat_current = 'nearby'; // if all fails we default to the nearby category
 rbgeNearby.last_refresh = 0;
+rbgeNearby.map = false;
+rbgeNearby.map_post_marker = false;
+rbgeNearby.map_person_marker = false;
+rbgeNearby.person_icon_on = {  
+        path: google.maps.SymbolPath.CIRCLE,
+        fillColor: '#0000ff',
+        fillOpacity: 0.8,
+        strokeColor: '#0000ff',
+        strokeWeight: 3,
+        strokeOpacity: 0.8,
+        scale: 8
+ }
+rbgeNearby.person_icon_off = {  
+         path: google.maps.SymbolPath.CIRCLE,
+         fillColor: '#0000ff',
+         fillOpacity: 0.1,
+         strokeColor: '#0000ff',
+         strokeWeight: 3,
+         strokeOpacity: 0.8,
+         scale: 8
+}
+rbgeNearby.track_person_icon_timer = false;
+rbgeNearby.track_watcher = false;
+rbgeNearby.track_timer = false;
+
 
 /*
     Main index page where poi are listed.
@@ -32,15 +57,6 @@ $(document).on("pageshow","#index-page",function(){
 
 $(document).on("pagecreate","#about-page",function(){ 
   
-  window.addEventListener('deviceorientation', function(event) {
-       var heading = null;
-       if(event.alpha !== null) {
-           heading = rbgeNearby.compassHeading(event.alpha, event.beta, event.gamma);
-           $('#nearby-heading').html(Math.round(heading) + ' degrees');
-        }else{
-            $('#nearby-heading').html('No heading');
-        }
-   } );
    
 });
 
@@ -95,6 +111,76 @@ $(document).on("pagebeforeshow","#post-page",function(){
     pp.append(div);
     
     pp.enhanceWithin();
+    
+});
+
+/*
+ * Google Maps documentation: http://code.google.com/apis/maps/documentation/javascript/basics.html
+ * Geolocation documentation: http://dev.w3.org/geo/api/spec-source.html
+ */
+$(document).on( "pagecreate", "#map-page", function() {
+    $('#nearby-track-button').on('click', rbgeNearby.toggleTracking);
+});
+
+$(document).on("pageshow","#map-page",function(){
+    
+    var post_pos = new google.maps.LatLng(rbgeNearby.post_current.latitude, rbgeNearby.post_current.longitude);
+    var person_pos = new google.maps.LatLng(rbgeNearby.location_current.latitude, rbgeNearby.location_current.longitude);
+    
+    var options = {
+        zoom: 16,
+        center: post_pos,
+        mapTypeId: google.maps.MapTypeId.ROADMAP
+    };
+    
+    console.log(options);
+    
+    // create the map if we need one
+    if(!rbgeNearby.map){
+        rbgeNearby.map = new google.maps.Map(document.getElementById("map-canvas"), options);
+        console.log('new map');
+    }else{
+        rbgeNearby.map.setOptions(options);
+        console.log('map exists');   
+    }
+    
+    // post marker position and title
+    if(!rbgeNearby.map_post_marker){
+        rbgeNearby.map_post_marker = new google.maps.Marker({
+            position: post_pos,
+            map: rbgeNearby.map,
+            title: rbgeNearby.post_current.title
+        });
+    }else{
+        rbgeNearby.map_post_marker.setOptions({
+            position: post_pos,
+            title: rbgeNearby.post_current.title
+        });
+    }
+    
+    // person marker position and title
+    if(!rbgeNearby.map_person_marker){
+        rbgeNearby.map_person_marker =new google.maps.Marker({
+            map: rbgeNearby.map,
+            position: person_pos,
+            icon: rbgeNearby.person_icon_on
+        });
+        
+    }else{
+        rbgeNearby.map_person_marker.setOptions({
+            position: person_pos
+        });
+    }
+    
+    // are they both on the map at the default resolution?
+    var bounds = new google.maps.LatLngBounds();
+    bounds.extend(rbgeNearby.map_post_marker.getPosition());
+    bounds.extend(rbgeNearby.map_person_marker.getPosition());
+    rbgeNearby.map.fitBounds(bounds);
+    
+    // just to make sure the map renders right
+    google.maps.event.trigger(rbgeNearby.map, 'resize');
+    
     
 });
 
@@ -210,15 +296,6 @@ rbgeNearby.loadCategories = function(){
                 var h2 = $('<h2>No specific topic</h2>');
                 li.append(h2);
                 
-                /*
-                var p = $('<p></p>');
-                li.append(p);
-                p.html(parents[0].description);
-                p = $('<p></p>');
-                li.append(p);
-                p.html(parents[0].count + ' items in total');
-                */
-                
                 // add in all the child categories
                 for (var i=0; i < cats.length; i++) {
                                     
@@ -300,6 +377,7 @@ rbgeNearby.loadData = function(){
     $.getJSON( "/wp-json/rbge_geo_tag/v1/nearby?lat="+ rbgeNearby.location_current.latitude + "&lon="+ rbgeNearby.location_current.longitude +"&category=" + rbgeNearby.cat_current, function( data ) {
         $.mobile.loading( "hide" );
         rbgeNearby.posts_data = data;
+        rbgeNearby.google_api_key = data.meta.google_api_key;
         rbgeNearby.updateDisplay();
     });
     
@@ -372,6 +450,87 @@ rbgeNearby.updateDisplay = function(){
     }// end loop
    
    
+}
+
+rbgeNearby.toggleTracking = function(){
+    
+    if(!rbgeNearby.track_timer){
+        rbgeNearby.startTracking();
+    }else{
+        rbgeNearby.stopTracking();
+    }
+    
+    var on = false;
+
+}
+
+rbgeNearby.startTracking = function(){
+    
+    var run_for = 20;
+    
+    // start a timer - we only do this for x seconds
+    rbgeNearby.track_timer = setTimeout(rbgeNearby.stopTracking, run_for * 1000);
+    
+    // start the location tracker
+    rbgeNearby.track_watcher = navigator.geolocation.watchPosition(
+
+                 // success
+                 function(position){
+                     var pos = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+                     rbgeNearby.map_person_marker.setPosition(pos);
+                     console.log(position);
+                 },
+                 // outright failure!
+                 function(error){
+                     console.log(error);
+                     return;
+                 },
+                 // options
+                 {
+                   enableHighAccuracy: true, 
+                   maximumAge        : 10 * 1000, 
+                   timeout           : 10 * 1000
+                 }
+
+    );
+    
+    // blink the icon
+    var on = true;
+    var rate = 500;
+    rbgeNearby.track_person_icon_timer = setInterval(function() {
+       if(on) {
+           rbgeNearby.map_person_marker.setOptions({
+               icon: rbgeNearby.person_icon_on
+           });
+       } else {
+           rbgeNearby.map_person_marker.setOptions({
+               icon: rbgeNearby.person_icon_off
+           });
+       }
+      on = !on;
+      
+    }, rate);
+
+    // disable button
+    $("#nearby-track-button").text("Tracking");
+}
+
+rbgeNearby.stopTracking = function(){
+    
+    // clear the timer
+    clearTimeout(rbgeNearby.track_timer);
+    rbgeNearby.track_timer = false;
+    
+    // cancel the icon blink
+    clearTimeout(rbgeNearby.track_person_icon_timer);
+    rbgeNearby.track_person_icon_timer = false;
+    rbgeNearby.map_person_marker.setOptions({icon: rbgeNearby.person_icon_on});
+    
+    // stop tracking
+    navigator.geolocation.clearWatch(rbgeNearby.track_watcher);
+    
+    // enable button
+    $("#nearby-track-button").text("Track");
 }
 
 /*

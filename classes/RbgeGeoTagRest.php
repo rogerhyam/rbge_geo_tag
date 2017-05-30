@@ -41,10 +41,18 @@ class RbgeGeoTagRest extends WP_REST_Controller {
         global $wpdb;
         
         $out = array();
+        
+        // header with some generic stuff in
+        $out['meta'] = array();
+        $out['meta']['google_api_key'] = RBGE_GOOGLE_MAPS_KEY;
+        $out['meta']['timestamp'] = time();
 
         $lat = $request['lat'];
         $lon = $request['lon'];
         $slug = $request['category'];
+        
+        $out['meta']['location'] = array('lat'=> $lat, 'lon' => $lon);
+        $out['meta']['category_slug'] = $slug;
         
         $sql = "SELECT
           post_id,
@@ -68,7 +76,7 @@ class RbgeGeoTagRest extends WP_REST_Controller {
         ORDER BY distance ASC
         LIMIT 30";
         
-        $out['sql'] = $sql;
+        $out['meta']['sql'] = $sql;
         
         $results = $wpdb->get_results($sql, ARRAY_A);
         $posts = array();
@@ -129,7 +137,6 @@ class RbgeGeoTagRest extends WP_REST_Controller {
         }
         
         //$out[] = $sql;
-        $out['location'] = array('lat'=> $lat, 'lon' => $lon);
         $out['posts'] = $posts;
         
         return new WP_REST_Response( $out, 200 );
