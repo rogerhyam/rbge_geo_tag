@@ -4,7 +4,7 @@ var rbgeNearby = {};
 rbgeNearby.location_current = false;
 rbgeNearby.location_error = false;
 rbgeNearby.location_inaccurate = false;
-rbgeNearby.location_ok_accuracy = 20; // this will do to stop the retrieving location
+rbgeNearby.location_ok_accuracy = 200; // this will do to stop the retrieving location
 rbgeNearby.location_watcher = false; // the watcher reporting the location (when running)
 rbgeNearby.location_timer = false; // a timer that will stop the location_watcher after a set period
 rbgeNearby.post_data = false; // holds the last lot of data downloaded
@@ -238,8 +238,6 @@ rbgeNearby.refresh = function(){
                  // success
                  function(position){
 
-                     console.log(position);
-
                     // only do something if we are given a new position
                     // if not keep watching
                     if(
@@ -336,9 +334,7 @@ rbgeNearby.loadCategories = function(){
                 for (var i=0; i < cats.length; i++) {
                                     
                     var cat = cats[i];
-                    
-                    console.log(cat);
-                    
+                                        
                     if(cat.slug == 'place') continue;
                     
                     var li = $('<li></li>');
@@ -463,10 +459,7 @@ rbgeNearby.updateDisplay = function(){
         // add in a direction
         var bearing = ''
         if(d > 0){
-            console.log(rbgeNearby.location_current);
-            console.log(post);
             bearing = rbgeNearby.getBearing(rbgeNearby.location_current.latitude, rbgeNearby.location_current.longitude, post.latitude, post.longitude );
-            console.log(bearing);
             if (bearing < 45) bearing = 'North'; 
             else if(bearing < 135) bearing = 'East';
             else if(bearing < 225) bearing = 'South';
@@ -512,9 +505,10 @@ rbgeNearby.startTracking = function(){
 
                  // success
                  function(position){
-                     var pos = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-                     rbgeNearby.map_person_marker.setPosition(pos);
-                     console.log(position);
+                     if(position.coords.accuracy < rbgeNearby.location_ok_accuracy){
+                         var pos = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+                         rbgeNearby.map_person_marker.setPosition(pos);
+                     }
                  },
                  // outright failure!
                  function(error){
