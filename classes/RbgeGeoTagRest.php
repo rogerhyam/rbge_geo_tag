@@ -147,7 +147,7 @@ class RbgeGeoTagRest extends WP_REST_Controller {
       if($filter_cat != null && $filter_slug != 'nearby') $cat_ids[] = $filter_cat->term_id;
       
       $out['meta']['cat_ids'] = $cat_ids;
-      $args = array( 'numberposts' => 10, 'category__and' => $cat_ids);
+      $args = array( 'numberposts' => 30, 'category__and' => $cat_ids);
       $posts = get_posts( $args );
       
       $nposts = array();
