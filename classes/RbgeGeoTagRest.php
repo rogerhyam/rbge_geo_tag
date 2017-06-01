@@ -137,6 +137,7 @@ class RbgeGeoTagRest extends WP_REST_Controller {
       $out = array();
       $out['meta'] = array();
       $out['meta']['beacon_slug'] = $beacon_slug;
+      $out['meta']['beacon_name'] =  $beacon_cat->name;
       $out['meta']['filter_slug'] = $filter_slug;
       
       // get all the posts for this category
@@ -163,6 +164,7 @@ class RbgeGeoTagRest extends WP_REST_Controller {
           $out['meta']['centroid'] = array();
           $out['meta']['centroid']['latitude'] = array_sum($lats)/count($lats);
           $out['meta']['centroid']['longitude'] = array_sum($lons)/count($lons);
+          $out['meta']['centroid']['accuracy'] = 50; // arbitrary for now.
       }
       
       $out['posts'] = $nposts;
@@ -237,6 +239,11 @@ class RbgeGeoTagRest extends WP_REST_Controller {
       $matches = array();
       if(preg_match('/Location: ([^\n]+)/', $header, $matches)){
           $uri = trim($matches[1]);
+          
+          if(!preg_match('/^https:\/\/stories.rbge.org.uk/', $uri)){
+              return new WP_Error( 'invalid_url', 'URI is not one of ours : ' . $uri );
+          }
+          
           $matches = array();
           if(preg_match('/\/([^\/]+)$/', $uri, $matches)){
                 $slug = trim($matches[1]);
