@@ -141,7 +141,10 @@ class RbgeGeoTagRest extends WP_REST_Controller {
       
       // get all the posts for this category
       $cat_ids = array($beacon_cat->term_id);
-      if($filter_cat != null) $cat_ids[] = $filter_cat->term_id;
+      
+      // we add the filter but not if it is 'nearby' - that is only useful in accompany of a lat/lon
+      if($filter_cat != null && $filter_slug != 'nearby') $cat_ids[] = $filter_cat->term_id;
+      
       $out['meta']['cat_ids'] = $cat_ids;
       $args = array( 'numberposts' => 10, 'category__and' => $cat_ids);
       $posts = get_posts( $args );
@@ -150,12 +153,9 @@ class RbgeGeoTagRest extends WP_REST_Controller {
       $lats = array();
       $lons = array();
       foreach($posts as $post){
-          
           $npost = $this->get_npost($post);
-          
           if(isset($npost->longitude)) $lons[] = $npost->longitude;
           if(isset($npost->latitude)) $lats[] = $npost->latitude;
-          
           $nposts[] = $npost;
       }
       
@@ -186,9 +186,9 @@ class RbgeGeoTagRest extends WP_REST_Controller {
       $b = trim($b);
       $paragraphs = preg_split('/\n+/', $b);
       $b = '<p>' . implode('</p><p>', $paragraphs) . '</p>';
-      $npost->body = $b; //nl2br(preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+/", "\n", strip_shortcodes($post->post_content)));
+      $npost->body = $b;
       
-      // get some categories incase we need them and to tag the places
+      // get some categories incase we need them and to tag the
       $post_categories = wp_get_post_categories( $post->ID );
       $cats = array();
       foreach($post_categories as $c){
@@ -202,8 +202,6 @@ class RbgeGeoTagRest extends WP_REST_Controller {
       // images
       $npost->thumbnail_url = get_the_post_thumbnail_url($post->ID, 'thumbnail');
       $npost->large_url = get_the_post_thumbnail_url($post->ID, 'widescreen');
-      
-      //$npost->large_url = wp_get_attachment_image(get_post_thumbnail_id($post->ID), 'widescreen');
       
       // mp3 attached?
       $npost->mp3 = false;
