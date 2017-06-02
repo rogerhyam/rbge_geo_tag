@@ -7,6 +7,10 @@ public static function activate(){
     global $wpdb;
     global $wp_rewrite;
   
+    /*
+        // firstly the geo points table - recreated and populated each time we activate
+    */
+  
     $sql = "CREATE TABLE rbge_geo_tag_points (
         post_id mediumint(9) NOT NULL,
         geoPoint POINT NOT NULL,
@@ -39,6 +43,42 @@ public static function activate(){
     	
     $wpdb->query($sql);
     
+    /*
+        Now a table to store locations tagged with soothingness
+    */
+    
+    $sql = "CREATE TABLE IF NOT EXISTS `rbge_geo_tag_soothe` (
+      `id` int(11) NOT NULL AUTO_INCREMENT,
+      `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      `timestamp` timestamp NULL DEFAULT NULL,
+      `soothed_slider` tinyint(4) DEFAULT NULL,
+      `excited_slider` tinyint(4) DEFAULT NULL,
+      `anxious_slider` tinyint(4) DEFAULT NULL,
+      `latitude` decimal(10,8) DEFAULT NULL,
+      `longitude` decimal(11,8) DEFAULT NULL,
+      `email` varchar(255) DEFAULT NULL,
+      `memorable_word` varchar(255) DEFAULT NULL,
+      `comments` text,
+      PRIMARY KEY (`id`)
+      ) ENGINE=MyISAM";
+
+    dbDelta( $sql );
+    
+    
+    /*
+        And one to track locations of data requests
+    */
+    $sql = "CREATE TABLE IF NOT EXISTS `rbge_geo_tag_log` (
+      `id` int(11) NOT NULL AUTO_INCREMENT,
+      `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      `latitude` decimal(10,8) NOT NULL,
+      `longitude` decimal(11,8) NOT NULL,
+      `beacon` varchar(100) DEFAULT NULL,
+      PRIMARY KEY (`id`)
+    ) ENGINE=MyISAM";
+
+    dbDelta( $sql );
+    
     
 }
 
@@ -46,6 +86,9 @@ public static function deactivate(){
     global $wpdb;
     $sql = "DROP TABLE rbge_geo_tag_points;";
     $wpdb->query($sql);
+    
+    // FIXME: We should have a warning displayed that tables will remain after deactivation.
+    
 }
 
 

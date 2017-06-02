@@ -50,6 +50,40 @@ class RbgeGeoTagRest extends WP_REST_Controller {
       )
     ));
     
+    // Data is posted when a location is tagged.
+    register_rest_route( $namespace, '/tag' , array(
+      array(
+        'methods'         => 'POST',
+        'callback'        => array( $this, 'tag_location' ),
+        'args' => array(
+            'latitude' => array(
+                'required' => true,
+                'validate_callback' => array($this, 'valid_latitude')
+            ),
+            'longitude' => array(
+                'required' => true,
+                'validate_callback' => array($this, 'valid_longitude')
+            ),
+            'anxious-slider' => array(
+                'required' => true,
+                'validate_callback' => array($this, 'valid_integer')
+            ),
+            'excited-slider' => array(
+                'required' => true,
+                'validate_callback' => array($this, 'valid_integer')
+            ),
+            'soothed-slider' => array(
+                'required' => true,
+                'validate_callback' => array($this, 'valid_integer')
+            ),
+            'timestamp' => array(
+                'required' => true,
+                'validate_callback' => array($this, 'valid_integer')
+            )
+         ) // end args
+        )
+      )
+    );
   
   }
  
@@ -122,6 +156,10 @@ class RbgeGeoTagRest extends WP_REST_Controller {
         //$out[] = $sql;
         $out['posts'] = $posts;
         
+        // log the call so we can map usage
+        $sql = "INSERT INTO rbge_geo_tag_log (latitude, longitude) VALUES ($lat, $lon)";
+        $wpdb->query($sql);
+        
         return new WP_REST_Response( $out, 200 );
   }
   
@@ -168,6 +206,10 @@ class RbgeGeoTagRest extends WP_REST_Controller {
       }
       
       $out['posts'] = $nposts;
+      
+      // log the call so we can map usage
+      $sql = "INSERT INTO rbge_geo_tag_log (beacon) VALUES ('$beacon_slug')";
+      $wpdb->query($sql);
   
       return new WP_REST_Response( $out, 200 );
   
@@ -273,6 +315,11 @@ class RbgeGeoTagRest extends WP_REST_Controller {
       return true;
   }
   
+  public function valid_integer($myInt){
+      if(filter_var($myInt, FILTER_VALIDATE_INT) !== false) return true;
+      return false;
+  }
+  
   public function valid_category_slug($slug){
       if(preg_match('/^[a-z0-9-_]+$/', $slug) == 1){
           return true;
@@ -281,6 +328,42 @@ class RbgeGeoTagRest extends WP_REST_Controller {
       }
   }
  
-}
+ 
+  public function tag_location($request){
+      
+      global $wpdb;
+      
+      // because I'm stupid enough to have different naming conventions
+      $data = array(
+        'timestamp' => date("Y-m-d H:i:s", $request['timestamp']/1000),
+        'soothed_slider' => $request['soothed-slider'],
+        'excited_slider' => $request['excited-slider'],
+        'anxious_slider'=> $request['anxious-slider'],
+        'latitude' => $request['latitude'],
+        'longitude' => $request['longitude'],
+        'email' => $request['email'],
+        'memorable_word' => $request['memorable-word'],
+        'comments' => $request['comments'],
+      );
+      
+      $types = array(
+        '%s', // timestamp
+        '%d', // slider
+        '%d', // slider
+        '%d', // slider
+        '%f', // lat
+        '%f', // lon
+        '%s', // email
+        '%s', // memorable
+        '%s', // comments
+      );
+      
+      $wpdb->insert('rbge_geo_tag_soothe', $data, $types);
+      
+      return date("Y-m-d H:i:s", $request['timestamp']/1000);
+      
+  }
+ 
+} // class
 
 ?>
