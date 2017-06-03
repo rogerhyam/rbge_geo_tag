@@ -56,9 +56,14 @@ class RbgeGeoTagAdmin{
         // add it into the spatial index
         $lat = trim($_POST['geo_latitude']);
         $lon = trim($_POST['geo_longitude']);
-        $point = "POINT($lat $lon)";
         
-        $sql = "INSERT INTO rbge_geo_tag_points (post_id, geopoint) VALUES ($post_id, ST_GeomFromText('$point')) ON DUPLICATE KEY UPDATE geopoint = ST_GeomFromText('$point');";
+        if(strlen($lat) > 0 && strlen($lon) >0){
+            $point = "POINT($lat $lon)";
+            $sql = "INSERT INTO rbge_geo_tag_points (post_id, geopoint) VALUES ($post_id, ST_GeomFromText('$point')) ON DUPLICATE KEY UPDATE geopoint = ST_GeomFromText('$point');";
+        }else{
+            $sql = "DELETE FROM rbge_geo_tag_points WHERE post_id = $post_id";
+        }
+        
         $wpdb->query($sql);
 
     }
