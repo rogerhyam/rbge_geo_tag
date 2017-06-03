@@ -46,8 +46,8 @@ class RbgeGeoTagAdmin{
         
         // quick edit will overwrite the metadata values so check for form flag first
         if( !isset($_POST['rbge_geo_tag_submit_flag'])) return;
-        if(!is_numeric(trim($_POST['geo_latitude']))) return;
-        if(!is_numeric(trim($_POST['geo_longitude']))) return;
+        if( strlen($_POST['geo_latitude']) > 0 && !is_numeric(trim($_POST['geo_latitude']))) return;
+        if( strlen($_POST['geo_longitude']) > 0 && !is_numeric(trim($_POST['geo_longitude']))) return;
         
         update_post_meta($post_id, 'geo_latitude', trim($_POST['geo_latitude']));
         update_post_meta($post_id, 'geo_longitude', trim($_POST['geo_longitude']));
