@@ -153,6 +153,8 @@ class RbgeGeoTagRest extends WP_REST_Controller {
             $posts[] = $npost;
         }
         
+        if($slug) $this->add_stick_category_post($slug, $posts);
+        
         //$out[] = $sql;
         $out['posts'] = $posts;
         
@@ -161,6 +163,54 @@ class RbgeGeoTagRest extends WP_REST_Controller {
         $wpdb->query($sql);
         
         return new WP_REST_Response( $out, 200 );
+  }
+  
+  public function add_stick_category_post($cat_slug, &$posts){
+      
+      // get the cat object
+      $category = get_category_by_slug( $cat_slug );
+     
+      
+     // does this category have a sticky post?
+      $query = new WP_Query(array(
+                     'fields'           =>    'ids',
+                     'post_type'        =>    'post',
+                     'posts_per_page'   =>    '1',
+                     'tax_query'        => array(
+                         'terms'        =>     null,
+                         'include_children'    =>    false
+                     ),
+                     'meta_query'       =>    array(
+                         array(
+                             'key'      =>    'category_sticky_post',
+                             'value'    =>    $category->cat_ID,
+                         )
+                     )
+                 ));
+        $post_id = ( ! isset ( $sticky_query->posts[0] ) ) ? -1 : $sticky_query->posts[0];
+        
+        // if we don't have a sticky post return
+        if($post_id == -1) return;
+                
+       // check it isn't already in the list and move it 
+       // to the front if it is
+       for ($i=0; $i < count($posts); $i++) { 
+           
+           $post = $posts[$i];
+           
+           if($post->id == $post_id){
+               unset($posts[$i]);
+               array_unshift($posts, $post);
+               return;
+           };
+           
+       }
+       
+       // we have not returned so we need to load the post and add 
+       // it in
+       $post = get_npost(get_post($post_id));
+       array_unshift($posts, $post);
+       
   }
   
   public function get_beacon_posts($request){
@@ -204,6 +254,10 @@ class RbgeGeoTagRest extends WP_REST_Controller {
           $out['meta']['centroid']['longitude'] = array_sum($lons)/count($lons);
           $out['meta']['centroid']['accuracy'] = 50; // arbitrary for now.
       }
+      
+      if($filter_slug) $this->add_stick_category_post($filter_slug, $nposts);
+      if($beacon_slug) $this->add_stick_category_post($beacon_slug, $nposts);
+      
       
       $out['posts'] = $nposts;
       
