@@ -165,54 +165,6 @@ class RbgeGeoTagRest extends WP_REST_Controller {
         return new WP_REST_Response( $out, 200 );
   }
   
-  public function add_stick_category_post($cat_slug, &$posts){
-      
-      // get the cat object
-      $category = get_category_by_slug( $cat_slug );
-     
-      
-     // does this category have a sticky post?
-      $query = new WP_Query(array(
-                     'fields'           =>    'ids',
-                     'post_type'        =>    'post',
-                     'posts_per_page'   =>    '1',
-                     'tax_query'        => array(
-                         'terms'        =>     null,
-                         'include_children'    =>    false
-                     ),
-                     'meta_query'       =>    array(
-                         array(
-                             'key'      =>    'category_sticky_post',
-                             'value'    =>    $category->cat_ID,
-                         )
-                     )
-                 ));
-        $post_id = ( ! isset ( $sticky_query->posts[0] ) ) ? -1 : $sticky_query->posts[0];
-        
-        // if we don't have a sticky post return
-        if($post_id == -1) return;
-                
-       // check it isn't already in the list and move it 
-       // to the front if it is
-       for ($i=0; $i < count($posts); $i++) { 
-           
-           $post = $posts[$i];
-           
-           if($post->id == $post_id){
-               unset($posts[$i]);
-               array_unshift($posts, $post);
-               return;
-           };
-           
-       }
-       
-       // we have not returned so we need to load the post and add 
-       // it in
-       $post = get_npost(get_post($post_id));
-       array_unshift($posts, $post);
-       
-  }
-  
   public function get_beacon_posts($request){
       
       global $wpdb;
@@ -255,9 +207,14 @@ class RbgeGeoTagRest extends WP_REST_Controller {
           $out['meta']['centroid']['accuracy'] = 50; // arbitrary for now.
       }
       
-      if($filter_slug) $this->add_stick_category_post($filter_slug, $nposts);
-      if($beacon_slug) $this->add_stick_category_post($beacon_slug, $nposts);
-      
+      // if they don't have a filter selected then we tell them
+      // about the beacon's sticky post first
+      // otherwize we put the filter post first
+      if(!$filter_slug || $filter_slug == 'nearby'){
+          $this->add_stick_category_post($beacon_slug, $nposts);
+      }else{
+          $this->add_stick_category_post($filter_slug, $nposts);
+      }
       
       $out['posts'] = $nposts;
       
@@ -267,6 +224,41 @@ class RbgeGeoTagRest extends WP_REST_Controller {
   
       return new WP_REST_Response( $out, 200 );
   
+  }
+  
+  public function add_stick_category_post($cat_slug, &$posts){
+      
+        // get the cat object
+        $category = get_category_by_slug( $cat_slug );
+
+        // does this category have a sticky post?
+        $args = array(
+             'post_type'  => 'post',
+             'meta_query' => array(
+                 array(
+                     'key'   => 'category_sticky_post',
+                     'value' => $category->cat_ID,
+                 )
+             )
+        );
+        $postslist = get_posts( $args );
+
+        if(count($postslist) < 1) return;
+
+        $featured_post = $this->get_npost($postslist[0]);
+        $featured_post->is_sticky = true;
+    
+        // check it isn't already in the list and remove it if it is
+        for ($i=0; $i < count($posts); $i++) {
+            $post = $posts[$i];
+            if($post->id == $featured_post->id) unset($posts[$i]);
+        }
+
+        // we have not returned so we need to load the post and add 
+        // it in
+        array_unshift($posts, $featured_post);
+        
+       
   }
   
   private function get_npost($post){
