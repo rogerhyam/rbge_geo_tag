@@ -225,7 +225,7 @@ class RbgeGeoTagRest extends WP_REST_Controller {
       
       $npost->title = $post->post_title;
       $b = strip_shortcodes($post->post_content);
-      $b = strip_tags($b, '<b><strong><em><i>');
+      $b = strip_tags($b, '<b><strong><em><i><a>');
       $b = preg_replace("/[\r\n]+/", "\n", $b);
       $b = trim($b);
       $paragraphs = preg_split('/\n+/', $b);
