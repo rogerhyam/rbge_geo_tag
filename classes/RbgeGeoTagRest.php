@@ -133,8 +133,6 @@ class RbgeGeoTagRest extends WP_REST_Controller {
         ORDER BY distance ASC
         LIMIT 30";
         
-        //$out['meta']['sql'] = $sql;
-        
         $results = $wpdb->get_results($sql, ARRAY_A);
         $posts = array();
         foreach($results as $row){
@@ -152,6 +150,8 @@ class RbgeGeoTagRest extends WP_REST_Controller {
             
             $posts[] = $npost;
         }
+        
+        
         
         if($slug) $this->add_stick_category_post($slug, $posts);
         
@@ -207,14 +207,15 @@ class RbgeGeoTagRest extends WP_REST_Controller {
           $out['meta']['centroid']['accuracy'] = 50; // arbitrary for now.
       }
       
-      // if they don't have a filter selected then we tell them
-      // about the beacon's sticky post first
-      // otherwize we put the filter post first
-      if(!$filter_slug || $filter_slug == 'nearby'){
-          $this->add_stick_category_post($beacon_slug, $nposts);
-      }else{
+      // if there is a sticky post for the filter we add that to 
+      // the top of the list 
+      if($filter_slug && $filter_slug != 'nearby'){
           $this->add_stick_category_post($filter_slug, $nposts);
       }
+      
+      // but if there is a sticky post for the beacon that trumps
+      // the filter sticky post
+      $this->add_stick_category_post($beacon_slug, $nposts);
       
       $out['posts'] = $nposts;
       
