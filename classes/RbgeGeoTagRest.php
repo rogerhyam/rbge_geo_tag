@@ -85,6 +85,21 @@ class RbgeGeoTagRest extends WP_REST_Controller {
       )
     );
   
+    // request for geoJSON fetch
+    register_rest_route( $namespace, '/geojson' , array(
+      array(
+        'methods'         => 'GET',
+        'callback'        => array( $this, 'get_geojson' ),
+        'args' => array(
+            'include' => array(
+                'required' => true
+            )
+         ) // end args
+        )
+      )
+    );
+  
+  
   }
  
   /**
@@ -410,6 +425,61 @@ class RbgeGeoTagRest extends WP_REST_Controller {
       return date("Y-m-d H:i:s", $request['timestamp']/1000);
       
   }
+  
+  
+  public function get_geojson($request){
+  
+      global $wpdb;
+  
+      $out = array();
+      $out['type'] = "FeatureCollection";
+      
+      $features = array();
+      foreach($request['include'] as $include){
+          
+          switch ($include) {
+            case 'nearby':
+                $sql = "SELECT latitude, longitude, 0.5 as weight FROM rbge_geo_tag_log WHERE beacon is NULL;";
+                $response = $wpdb->get_results($sql);
+                $this->add_geojson_add_from_rows($features, $response);
+                break;
+            case 'soothed':
+                $sql = "SELECT latitude, longitude, (soothed_slider / 10) as weight FROM rbge_geo_tag_soothe;";
+                $response = $wpdb->get_results($sql);
+                $this->add_geojson_add_from_rows($features, $response);
+                break;
+            case 'excited':
+                $sql = "SELECT latitude, longitude, (excited_slider / 10) as weight FROM rbge_geo_tag_soothe;";
+                $response = $wpdb->get_results($sql);
+                $this->add_geojson_add_from_rows($features, $response);
+                break;
+            case 'anxious':
+                $sql = "SELECT latitude, longitude, (anxious_slider / 10) as weight FROM rbge_geo_tag_soothe;";
+                $response = $wpdb->get_results($sql);
+                $this->add_geojson_add_from_rows($features, $response);
+                break;          
+          }
+          
+      }
+  
+      $out['features'] = $features;
+  
+      return $out;
+  
+  }
+  
+  public function add_geojson_add_from_rows(&$features, $rows){
+      foreach($rows as $row){
+          $feature = array();
+          $feature['type'] = "Feature";
+          $feature["geometry"]['type'] = 'Point';
+          $feature["geometry"]['coordinates'] = array(floatval($row->longitude), floatval($row->latitude));
+          $feature['properties']['weight'] = floatval($row->weight);
+          $features[] = $feature;
+      }
+  }
+  
+  
  
 } // class
 
