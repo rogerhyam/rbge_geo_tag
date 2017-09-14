@@ -53,6 +53,10 @@ if(is_admin()){
     add_action('wp_head', array($machine, 'page_header'));
     add_action('rss2_item', array($machine, 'rss'));
     
+    require_once plugin_dir_path( __FILE__ ) . 'classes/RbgeGeoTagSootheForm.php';
+    $soothe = new RbgeGeoTagSootheForm();
+    add_shortcode( 'rbge_soothe_form', array($soothe, 'render') );
+    
     
 }
 

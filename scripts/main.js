@@ -4,6 +4,9 @@ jQuery( document ).ready(function() {
     // only run the init if the map div has been loaded
     if(jQuery("#rbge-geo-tag-map").length > 0)  rbge_geo_tag_admin_init();
     if(jQuery(".rbge-geo-tag-display-map").length > 0)  rbge_geo_tag_display_init();
+    
+    if(jQuery("#rbge-geo-tag-soothe-map").length > 0)  rbge_geo_tag_soothe_map_init();
+    
 
 });
 
@@ -195,4 +198,45 @@ function rbge_geo_tag_fire_help(){
     jQuery('#contextual-help-link').click();
     jQuery('#tab-link-rbge_geo_tag_help a').click();
     return false;
+}
+
+// initialise the map in the soothe form
+function rbge_geo_tag_soothe_map_init(){
+    
+    
+    var centerOfMap = new google.maps.LatLng(55.965087,-3.2092797);
+    var zoomLevel = 16;
+    var markers = [];
+    
+    var map = new google.maps.Map(document.getElementById('rbge-geo-tag-soothe-map'), {
+        zoom: zoomLevel,
+        center: centerOfMap,
+        mapTypeId: 'hybrid'    
+    });
+    
+    google.maps.event.addListener(map, 'click', function(event) {
+
+        var marker = new google.maps.Marker({
+            position: event.latLng, 
+            map: map
+        });
+        
+        markers.push(marker);
+
+        var into = jQuery('input[name=soothe-map-select]:checked').val();
+        var old = jQuery('input[name='+ into +']').val();
+        jQuery('input[name='+ into +']').val(old + event.latLng.lat() + ',' + event.latLng.lng() + ' | ');
+        
+    
+    });
+    
+    jQuery('#rbge-geo-tag-soothe-map-clear').on('click', function(event){
+        
+        for (var i = 0; i < markers.length; i++) {
+            markers[i].setMap(null);
+        }
+        markers = [];
+    });
+    
+    
 }
