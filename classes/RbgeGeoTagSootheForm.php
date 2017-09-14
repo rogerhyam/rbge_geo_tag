@@ -322,4 +322,36 @@ class RbgeGeoTagSootheForm{
     
 }
 
+/*
+
+DROP TABLE IF EXISTS `rbge_geo_tag_soothe_form`;
+CREATE TABLE `rbge_geo_tag_soothe_form` (
+  `id` int(8) unsigned NOT NULL AUTO_INCREMENT,
+  `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `data_pixie` varchar(20) NOT NULL,
+  `visit_frequency` int(8) NOT NULL,
+  `age_class` int(8) NOT NULL,
+  `sex` int(8) NOT NULL,
+  `home` varchar(100) DEFAULT NULL,
+  `panel1` int(8) DEFAULT NULL,
+  `panel2` int(8) DEFAULT NULL,
+  `panel3` int(8) DEFAULT NULL,
+  `panel_comment` varchar(1000) DEFAULT NULL,
+  `importance_my_well_being` int(8) DEFAULT NULL,
+  `importance_everyone_well_being` int(8) DEFAULT NULL,
+  `visit_soothed_me` int(8) DEFAULT NULL,
+  `nature_in_me` int(8) DEFAULT NULL,
+  `email` varchar(100) DEFAULT NULL,
+  `include_in_draw` int(8) DEFAULT NULL,
+  `send_results` int(8) DEFAULT NULL,
+  `include_in_future_studies` int(8) DEFAULT NULL,
+  `map_comments` varchar(1000) DEFAULT NULL,
+  `soothing_places` varchar(1000) DEFAULT NULL,
+  `anxious_places` varchar(1000) DEFAULT NULL,
+  `exciting_places` varchar(1000) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=latin1;
+
+*/
+
 ?>
