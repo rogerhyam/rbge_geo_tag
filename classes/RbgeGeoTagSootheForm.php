@@ -81,51 +81,68 @@ class RbgeGeoTagSootheForm{
         $out .= '</p>';
         
         // my well being
-        $out .= '<p>';
-        $out .= '<strong>MY well-being:</strong> ';
-        $out .= '<input type="radio" name="soothe-form-my-well-being" value="1" /> 1 | ';
-        $out .= '<input type="radio" name="soothe-form-my-well-being" value="2" /> 2 | ';
-        $out .= '<input type="radio" name="soothe-form-my-well-being" value="3" /> 3 | ';
-        $out .= '<input type="radio" name="soothe-form-my-well-being" value="4" /> 4 | ';
-        $out .= '<input type="radio" name="soothe-form-my-well-being" value="5" /> 5 | ';
-        $out .= '<input type="radio" name="soothe-form-my-well-being" value="6" /> 6 | ';
-        $out .= '<input type="radio" name="soothe-form-my-well-being" value="-1" checked="checked" /> N/A';
-        $out .= '</p>';
+        $out .= '<table style="text-align:center;">';
+        
+        $out .= '<tr>';
+        $out .= '<th>&nbsp;</th>';
+        $out .= '<th>1</th>';
+        $out .= '<th>2</th>';
+        $out .= '<th>3</th>';
+        $out .= '<th>4</th>';
+        $out .= '<th>5</th>';
+        $out .= '<th>6</th>';
+        $out .= '<th>N/A</th>';
+        $out .= '</tr>';
+        
+        $out .= '<tr>';
+        $out .= '<td style="text-align:right;"><strong>MY well-being:</strong></td>';
+        $out .= '<td><input type="radio" name="soothe-form-my-well-being" value="1" /></td>';
+        $out .= '<td><input type="radio" name="soothe-form-my-well-being" value="2" /></td>';
+        $out .= '<td><input type="radio" name="soothe-form-my-well-being" value="3" /></td>';
+        $out .= '<td><input type="radio" name="soothe-form-my-well-being" value="4" /></td>';
+        $out .= '<td><input type="radio" name="soothe-form-my-well-being" value="5" /></td>';
+        $out .= '<td><input type="radio" name="soothe-form-my-well-being" value="6" /></td>';
+        $out .= '<td><input type="radio" name="soothe-form-my-well-being" value="-1" checked="checked" /></td>';
+        $out .= '</tr>';
         
         // everyone's well being
-        $out .= '<p>';
-        $out .= '<strong>EVERYONE\'s well-being:</strong> ';
-        $out .= '<input type="radio" name="soothe-form-everyone-well-being" value="1" /> 1 | ';
-        $out .= '<input type="radio" name="soothe-form-everyone-well-being" value="2" /> 2 | ';
-        $out .= '<input type="radio" name="soothe-form-everyone-well-being" value="3" /> 3 | ';
-        $out .= '<input type="radio" name="soothe-form-everyone-well-being" value="4" /> 4 | ';
-        $out .= '<input type="radio" name="soothe-form-everyone-well-being" value="5" /> 5 | ';
-        $out .= '<input type="radio" name="soothe-form-everyone-well-being" value="6" /> 6 | ';
-        $out .= '<input type="radio" name="soothe-form-everyone-well-being" value="-1" checked="checked" /> N/A';
-        $out .= '</p>';
+        $out .= '<tr>';
+        $out .= '<td  style="text-align:right;" ><strong>EVERYONE\'s well-being:</strong></td>';
+        $out .= '<td><input type="radio" name="soothe-form-everyone-well-being" value="1" /></td>';
+        $out .= '<td><input type="radio" name="soothe-form-everyone-well-being" value="2" /></td>';
+        $out .= '<td><input type="radio" name="soothe-form-everyone-well-being" value="3" /></td>';
+        $out .= '<td><input type="radio" name="soothe-form-everyone-well-being" value="4" /></td>';
+        $out .= '<td><input type="radio" name="soothe-form-everyone-well-being" value="5" /></td>';
+        $out .= '<td><input type="radio" name="soothe-form-everyone-well-being" value="6" /></td>';
+        $out .= '<td><input type="radio" name="soothe-form-everyone-well-being" value="-1" checked="checked" /></td>';
+        $out .= '</tr>';
         
         // soothed me
-        $out .= '<p>';
-        $out .= '<strong>Visit Soothed me:</strong> ';
-        $out .= '<input type="radio" name="soothe-form-soothed-me" value="1" /> 1 | ';
-        $out .= '<input type="radio" name="soothe-form-soothed-me" value="2" /> 2 | ';
-        $out .= '<input type="radio" name="soothe-form-soothed-me" value="3" /> 3 | ';
-        $out .= '<input type="radio" name="soothe-form-soothed-me" value="4" /> 4 | ';
-        $out .= '<input type="radio" name="soothe-form-soothed-me" value="5" /> 5 | ';
-        $out .= '<input type="radio" name="soothe-form-soothed-me" value="6" /> 6 | ';
-        $out .= '<input type="radio" name="soothe-form-soothed-me" value="-1" checked="checked" /> N/A';
-        $out .= '</p>';
+        $out .= '<tr>';
+        $out .= '<td  style="text-align:right;"><strong>Visit Soothed me:</strong></td>';
+        $out .= '<td><input type="radio" name="soothe-form-soothed-me" value="1" /></td>';
+        $out .= '<td><input type="radio" name="soothe-form-soothed-me" value="2" /></td>';
+        $out .= '<td><input type="radio" name="soothe-form-soothed-me" value="3" /></td>';
+        $out .= '<td><input type="radio" name="soothe-form-soothed-me" value="4" /></td>';
+        $out .= '<td><input type="radio" name="soothe-form-soothed-me" value="5" /></td>';
+        $out .= '<td><input type="radio" name="soothe-form-soothed-me" value="6" /></td>';
+        $out .= '<td><input type="radio" name="soothe-form-soothed-me" value="-1" checked="checked" /></td>';
+        $out .= '</tr>';
         
         // how interconnected
-        $out .= '<p>';
-        $out .= '<strong>Nature Connection:</strong> ';
-        $out .= '<input type="radio" name="soothe-form-connected" value="1" /> 1 | ';
-        $out .= '<input type="radio" name="soothe-form-connected" value="2" /> 2 | ';
-        $out .= '<input type="radio" name="soothe-form-connected" value="3" /> 3 | ';
-        $out .= '<input type="radio" name="soothe-form-connected" value="4" /> 4 | ';
-        $out .= '<input type="radio" name="soothe-form-connected" value="5" /> 5 | ';
-        $out .= '<input type="radio" name="soothe-form-connected" value="-1" checked="checked" /> N/A';
-        $out .= '</p>';
+        $out .= '<tr>';
+        $out .= '<td  style="text-align:right;"><strong>Nature Connection:</strong> ';
+        $out .= '<td><input type="radio" name="soothe-form-connected" value="1" /></td>';
+        $out .= '<td><input type="radio" name="soothe-form-connected" value="2" /></td>';
+        $out .= '<td><input type="radio" name="soothe-form-connected" value="3" /></td>';
+        $out .= '<td><input type="radio" name="soothe-form-connected" value="4" /></td>';
+        $out .= '<td><input type="radio" name="soothe-form-connected" value="5" /></td>';
+        $out .= '<td>&nbsp;</td>';
+        $out .= '<td><input type="radio" name="soothe-form-connected" value="-1" checked="checked" /></td>';
+        $out .= '</tr>';
+        $out .= '</table>';
+        
+        $out .= '<p></p>';
         
         // email
         $out .= '<p>';
