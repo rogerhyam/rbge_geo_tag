@@ -474,7 +474,13 @@ class RbgeGeoTagRest extends WP_REST_Controller {
           $feature['type'] = "Feature";
           $feature["geometry"]['type'] = 'Point';
           $feature["geometry"]['coordinates'] = array(floatval($row->longitude), floatval($row->latitude));
-          $feature['properties']['weight'] = floatval($row->weight);
+          $weight = floatval($row->weight);
+          if($weight <= 0.5){
+              $weight = 0;
+          }else{
+              $weight = ($weight - 0.5) * 2;
+          }
+          $feature['properties']['weight'] = $weight;
           $features[] = $feature;
       }
   }
