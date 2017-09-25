@@ -439,7 +439,7 @@ class RbgeGeoTagRest extends WP_REST_Controller {
           
           switch ($include) {
             case 'nearby':
-                $sql = "SELECT latitude, longitude, 0.5 as weight FROM rbge_geo_tag_log WHERE beacon is NULL;";
+                $sql = "SELECT latitude, longitude, 0.75 as weight FROM rbge_geo_tag_log WHERE beacon is NULL;";
                 $response = $wpdb->get_results($sql);
                 $this->add_geojson_add_from_rows($features, $response);
                 break;
