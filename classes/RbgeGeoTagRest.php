@@ -299,11 +299,24 @@ class RbgeGeoTagRest extends WP_REST_Controller {
       $cats = array();
       foreach($post_categories as $c){
           $cat = get_category( $c );
-          $cats[] = array( 'name' => $cat->name, 'slug' => $cat->slug );
+          $simple_cat = array( 'name' => $cat->name, 'slug' => $cat->slug );
+          
+          if(isset($cat->cat_image_url)) $simple_cat['image_url'] = $cat->cat_image_url;
+          else $simple_cat['image_url'] = false;
+          
+          $cats[] = $simple_cat;
           
           if($cat->slug == 'place') $post->rbge_geo->is_place = true;
       }
       $npost->categories = $cats;
+      
+      $post_tags = wp_get_post_tags( $post->ID );
+      $tags = array();
+      foreach($post_tags as $t){
+          $tag = get_category( $t );
+          $tags[] = array( 'name' => $tag->name, 'slug' => $tag->slug );
+      }
+      $npost->tags = $tags;
       
       // images
       $npost->thumbnail_url = get_the_post_thumbnail_url($post->ID, 'thumbnail');

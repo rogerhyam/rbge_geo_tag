@@ -14,7 +14,6 @@ register_deactivation_hook( __FILE__, array( 'RbgeGeoTagActivation', 'deactivate
 if(is_admin()){
 
     //things on the back end
-    
     add_action('admin_enqueue_scripts', function(){
         wp_enqueue_script('rbge_geo_tag_google_maps', 'https://maps.googleapis.com/maps/api/js?key=' . RBGE_GOOGLE_MAPS_KEY);
         wp_enqueue_script('rbge_geo_tag_main_script', plugins_url('scripts/main.js', __FILE__));
@@ -30,6 +29,25 @@ if(is_admin()){
         add_action('in_admin_header', array($admin, 'help'));
 
     });
+    
+    // we need to add images to categories for the nearby app
+    add_action ( 'edit_category_form_fields', function( $tag ){
+        $cat_image_url = get_term_meta( $tag->term_id, 'cat_image_url', true );
+    ?>
+        <tr class='form-field'>
+            <th scope='row'><label for='cat_image_url'>Cat Image URL</label></th>
+            <td>
+                <input type='text' name='cat_image_url' id='cat_image_url' value='<?php echo $cat_image_url ?>'>
+                <p class='description'>Hack for Botanics Nearby. Get the image's URL from the media library and change it to end -150x150.jpg</p>
+            </td>
+        </tr>
+    <?php
+    });
+    add_action ( 'edited_category', function() {
+        if ( isset( $_POST['cat_image_url'] ) )
+            update_term_meta( $_POST['tag_ID'], 'cat_image_url', $_POST['cat_image_url'] );
+    });
+    
     
 }else{
     
@@ -76,6 +94,15 @@ add_action('rest_api_init', function(){
   require_once plugin_dir_path( __FILE__ ) . 'classes/RbgeGeoTagRest.php';
   $rest = new RbgeGeoTagRest();
   $rest->register_routes();
+  
+  // add the category image field to the json for the category.
+  $args1 = array( 
+      'type'         => 'string',
+      'description'  => 'An image URL associated with the category.',
+      'single'       => true,
+      'show_in_rest' => true,
+  );
+  register_meta( 'term', 'cat_image_url', $args1 );
 
 });
 
